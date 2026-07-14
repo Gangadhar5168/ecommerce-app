@@ -1,11 +1,11 @@
 package com.vg.mservices.orderservice.dto.request;
 
 import com.vg.mservices.orderservice.entity.OrderStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Builder
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderRequest {

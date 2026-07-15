@@ -1,6 +1,7 @@
 package com.vg.mservices.orderservice.service.impl;
 
 import com.vg.mservices.orderservice.dto.request.OrderRequest;
+import com.vg.mservices.orderservice.dto.response.OrderDetailsResponse;
 import com.vg.mservices.orderservice.dto.response.OrderResponse;
 import com.vg.mservices.orderservice.entity.Order;
 import com.vg.mservices.orderservice.entity.OrderStatus;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,5 +55,28 @@ public class OrderServiceImplTest {
         assertEquals(OrderStatus.CREATED,response.getStatus());
         verify(orderRepository).save(any(Order.class));
 
+    }
+
+    @Test
+    void shouldReturnOrderByIdSuccessfully(){
+        Order order = Order.builder()
+                .id(1L)
+                .customerId(101L)
+                .productName("Laptop")
+                .quantity(1)
+                .status(OrderStatus.CREATED)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(orderRepository.findById(1L))
+                .thenReturn(Optional.of(order));
+
+        OrderDetailsResponse odr = orderService.getOrderById(1L);
+        assertNotNull(odr);
+        assertEquals(101L,odr.getCustomerId());
+        assertEquals("Laptop",odr.getProductName());
+        assertEquals(1,odr.getQuantity());
+        assertEquals(OrderStatus.CREATED,odr.getStatus());
+        verify(orderRepository).findById(1L);
     }
 }

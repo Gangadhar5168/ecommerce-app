@@ -5,6 +5,7 @@ import com.vg.mservices.orderservice.dto.response.OrderDetailsResponse;
 import com.vg.mservices.orderservice.dto.response.OrderResponse;
 import com.vg.mservices.orderservice.entity.Order;
 import com.vg.mservices.orderservice.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request){
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request){
         OrderResponse response = orderService.createOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
@@ -36,5 +37,11 @@ public class OrderController {
     public ResponseEntity<List<OrderDetailsResponse>> getAllOrders(){
         List<OrderDetailsResponse> ordersList = orderService.getAllOrders();
         return ResponseEntity.ok(ordersList);
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<OrderDetailsResponse> cancelOrder(@PathVariable Long id){
+       OrderDetailsResponse orderDetails =  orderService.cancelOrder(id);
+        return ResponseEntity.ok(orderDetails);
     }
 }

@@ -67,5 +67,22 @@ public class OrderServiceImpl implements OrderService {
         return ordersDetailsList;
     }
 
+    @Override
+    public OrderDetailsResponse cancelOrder(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow();
+        order.setStatus(OrderStatus.CANCELLED);
+       orderRepository.save(order);
+       OrderDetailsResponse odr = OrderDetailsResponse.builder()
+               .id(order.getId())
+               .customerId(order.getCustomerId())
+               .productName(order.getProductName())
+               .quantity(order.getQuantity())
+               .status(order.getStatus())
+               .createdAt(order.getCreatedAt())
+               .build();
+
+       return odr;
+    }
+
 
 }

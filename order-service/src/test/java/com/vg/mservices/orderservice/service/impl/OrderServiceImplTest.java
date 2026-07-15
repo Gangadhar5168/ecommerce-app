@@ -115,4 +115,28 @@ public class OrderServiceImplTest {
         verify(orderRepository).findAll();
 
     }
+
+    @Test
+    void shouldCancelOrderSuccessfully(){
+        Order order = Order.builder()
+                .id(1L)
+                .customerId(101L)
+                .productName("Laptop")
+                .quantity(1)
+                .status(OrderStatus.CREATED)
+                .createdAt(LocalDateTime.now())
+                .build();
+        when(orderRepository.findById(1L))
+                .thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class)))
+                .thenReturn(order);
+
+        OrderDetailsResponse odr = orderService.cancelOrder(1L);
+        assertEquals(1L,odr.getId());
+        assertEquals(101L,odr.getCustomerId());
+        assertEquals(OrderStatus.CANCELLED,odr.getStatus());
+        verify(orderRepository).findById(1L);
+        verify(orderRepository).save(any(Order.class));
+
+    }
 }

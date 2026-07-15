@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,4 +48,24 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         return odr;
     }
+
+    @Override
+    public List<OrderDetailsResponse> getAllOrders() {
+        List<OrderDetailsResponse> ordersDetailsList = new ArrayList<>();
+        List<Order> ordersList = orderRepository.findAll();
+        for(Order order:ordersList){
+            OrderDetailsResponse odr = OrderDetailsResponse.builder()
+                    .id(order.getId())
+                    .customerId(order.getCustomerId())
+                    .productName(order.getProductName())
+                    .quantity(order.getQuantity())
+                    .status(order.getStatus())
+                    .createdAt(order.getCreatedAt())
+                    .build();
+            ordersDetailsList.add(odr);
+        }
+        return ordersDetailsList;
+    }
+
+
 }

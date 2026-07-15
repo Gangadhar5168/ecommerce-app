@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,5 +79,40 @@ public class OrderServiceImplTest {
         assertEquals(1,odr.getQuantity());
         assertEquals(OrderStatus.CREATED,odr.getStatus());
         verify(orderRepository).findById(1L);
+    }
+
+    @Test
+    void shouldReturnAllOrdersSuccessfully(){
+        Order order1 = Order.builder()
+                .id(1L)
+                .customerId(101L)
+                .productName("Laptop")
+                .quantity(1)
+                .status(OrderStatus.CREATED)
+                .createdAt(LocalDateTime.now())
+                .build();
+        Order order2 = Order.builder()
+                .id(2L)
+                .customerId(102L)
+                .productName("Mobile")
+                .quantity(1)
+                .status(OrderStatus.CREATED)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(orderRepository.findAll())
+                .thenReturn(List.of(order1,order2));
+        List<OrderDetailsResponse> odrList = orderService.getAllOrders();
+        assertNotNull(odrList);
+        assertEquals(2,odrList.size());
+
+        assertEquals(1L,odrList.getFirst().getId());
+        assertEquals("Laptop",odrList.getFirst().getProductName());
+
+        assertEquals(2L, odrList.get(1).getId());
+        assertEquals("Mobile",odrList.get(1).getProductName());
+
+        verify(orderRepository).findAll();
+
     }
 }

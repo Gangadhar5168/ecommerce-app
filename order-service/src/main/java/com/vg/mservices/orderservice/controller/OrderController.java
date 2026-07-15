@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/orders")
 @RequiredArgsConstructor
@@ -28,5 +30,11 @@ public class OrderController {
         OrderDetailsResponse orderDetails = orderService.getOrderById(id);
 
         return ResponseEntity.ok(orderDetails);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderDetailsResponse>> getAllOrders(){
+        List<OrderDetailsResponse> ordersList = orderService.getAllOrders();
+        return ResponseEntity.ok(ordersList);
     }
 }

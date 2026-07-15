@@ -1,6 +1,7 @@
 package com.vg.mservices.orderservice.service.impl;
 
 import com.vg.mservices.orderservice.dto.request.OrderRequest;
+import com.vg.mservices.orderservice.dto.response.OrderDetailsResponse;
 import com.vg.mservices.orderservice.dto.response.OrderResponse;
 import com.vg.mservices.orderservice.entity.Order;
 import com.vg.mservices.orderservice.entity.OrderStatus;
@@ -30,5 +31,19 @@ public class OrderServiceImpl implements OrderService {
                 .status(savedOrder.getStatus())
                 .build();
         return orderResponse;
+    }
+
+    @Override
+    public OrderDetailsResponse getOrderById(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow();
+        OrderDetailsResponse odr = OrderDetailsResponse.builder()
+                .id(order.getId())
+                .customerId(order.getCustomerId())
+                .productName(order.getProductName())
+                .quantity(order.getQuantity())
+                .status(order.getStatus())
+                .createdAt(order.getCreatedAt())
+                .build();
+        return odr;
     }
 }

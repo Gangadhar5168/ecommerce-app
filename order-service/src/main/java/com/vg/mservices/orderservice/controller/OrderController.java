@@ -1,15 +1,14 @@
-package com.vg.mservices.orderservice.dto;
+package com.vg.mservices.orderservice.controller;
 
 import com.vg.mservices.orderservice.dto.request.OrderRequest;
+import com.vg.mservices.orderservice.dto.response.OrderDetailsResponse;
 import com.vg.mservices.orderservice.dto.response.OrderResponse;
+import com.vg.mservices.orderservice.entity.Order;
 import com.vg.mservices.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/orders")
@@ -22,5 +21,12 @@ public class OrderController {
         OrderResponse response = orderService.createOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDetailsResponse> getOrderById(@PathVariable Long id){
+        OrderDetailsResponse orderDetails = orderService.getOrderById(id);
+
+        return ResponseEntity.ok(orderDetails);
     }
 }

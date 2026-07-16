@@ -5,6 +5,8 @@ import com.vg.mservices.orderservice.dto.response.OrderDetailsResponse;
 import com.vg.mservices.orderservice.dto.response.OrderResponse;
 import com.vg.mservices.orderservice.entity.Order;
 import com.vg.mservices.orderservice.entity.OrderStatus;
+import com.vg.mservices.orderservice.exception.OrderAlreadyCancelledException;
+import com.vg.mservices.orderservice.exception.OrderNotFoundException;
 import com.vg.mservices.orderservice.repository.OrderRepository;
 import com.vg.mservices.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailsResponse getOrderById(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow();
+        Order order = orderRepository.findById(id).orElseThrow(()-> new OrderNotFoundException("Order not found with id : "+id));
         OrderDetailsResponse odr = OrderDetailsResponse.builder()
                 .id(order.getId())
                 .customerId(order.getCustomerId())
@@ -69,7 +71,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailsResponse cancelOrder(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow();
+        Order order = orderRepository.findById(id).orElseThrow(()-> new OrderNotFoundException("Cannot cancel order. Order not found with id :"+id));
+        if(order.getStatus()==OrderStatus.CANCELLED){
+            throw new OrderAlreadyCancelledException("Order already cancelled with order id :"+id);
+        }
         order.setStatus(OrderStatus.CANCELLED);
        orderRepository.save(order);
        OrderDetailsResponse odr = OrderDetailsResponse.builder()

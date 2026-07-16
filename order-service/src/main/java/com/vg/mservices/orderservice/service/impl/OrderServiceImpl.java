@@ -7,6 +7,7 @@ import com.vg.mservices.orderservice.entity.Order;
 import com.vg.mservices.orderservice.entity.OrderStatus;
 import com.vg.mservices.orderservice.exception.OrderAlreadyCancelledException;
 import com.vg.mservices.orderservice.exception.OrderNotFoundException;
+import com.vg.mservices.orderservice.mapper.OrderMapper;
 import com.vg.mservices.orderservice.repository.OrderRepository;
 import com.vg.mservices.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -22,33 +23,18 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     @Override
     public OrderResponse createOrder(OrderRequest request) {
-        Order order = Order.builder()
-                .customerId(request.getCustomerId())
-                .productName(request.getProductName())
-                .quantity(request.getQuantity())
-                .status(OrderStatus.CREATED)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Order order = OrderMapper.toOrder(request);
+        order.setStatus(OrderStatus.CREATED);
+        order.setCreatedAt(LocalDateTime.now());
         Order savedOrder = orderRepository.save(order);
-        OrderResponse orderResponse = OrderResponse.builder()
-                .orderId(savedOrder.getId())
-                .status(savedOrder.getStatus())
-                .build();
-        return orderResponse;
+
+        return OrderMapper.toOrderResponse(savedOrder);
     }
 
     @Override
     public OrderDetailsResponse getOrderById(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(()-> new OrderNotFoundException("Order not found with id : "+id));
-        OrderDetailsResponse odr = OrderDetailsResponse.builder()
-                .id(order.getId())
-                .customerId(order.getCustomerId())
-                .productName(order.getProductName())
-                .quantity(order.getQuantity())
-                .status(order.getStatus())
-                .createdAt(order.getCreatedAt())
-                .build();
-        return odr;
+        return OrderMapper.toOrderDetailsResponse(order);
     }
 
     @Override
@@ -56,14 +42,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetailsResponse> ordersDetailsList = new ArrayList<>();
         List<Order> ordersList = orderRepository.findAll();
         for(Order order:ordersList){
-            OrderDetailsResponse odr = OrderDetailsResponse.builder()
-                    .id(order.getId())
-                    .customerId(order.getCustomerId())
-                    .productName(order.getProductName())
-                    .quantity(order.getQuantity())
-                    .status(order.getStatus())
-                    .createdAt(order.getCreatedAt())
-                    .build();
+            OrderDetailsResponse odr = OrderMapper.toOrderDetailsResponse(order);
             ordersDetailsList.add(odr);
         }
         return ordersDetailsList;
@@ -77,16 +56,9 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setStatus(OrderStatus.CANCELLED);
        orderRepository.save(order);
-       OrderDetailsResponse odr = OrderDetailsResponse.builder()
-               .id(order.getId())
-               .customerId(order.getCustomerId())
-               .productName(order.getProductName())
-               .quantity(order.getQuantity())
-               .status(order.getStatus())
-               .createdAt(order.getCreatedAt())
-               .build();
 
-       return odr;
+
+       return OrderMapper.toOrderDetailsResponse(order);
     }
 
 

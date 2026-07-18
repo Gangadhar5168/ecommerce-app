@@ -4,6 +4,9 @@ import com.vg.mservices.inventoryservice.dto.request.CreateInventoryRequest;
 import com.vg.mservices.inventoryservice.dto.request.UpdateInventoryRequest;
 import com.vg.mservices.inventoryservice.dto.response.InventoryResponse;
 import com.vg.mservices.inventoryservice.entity.ProductInventory;
+import com.vg.mservices.inventoryservice.exception.InsufficientInventoryException;
+import com.vg.mservices.inventoryservice.exception.OutOfStockException;
+import com.vg.mservices.inventoryservice.exception.ProductNotFoundException;
 import com.vg.mservices.inventoryservice.mapper.InventoryMapper;
 import com.vg.mservices.inventoryservice.repository.ProductInventoryRepository;
 import com.vg.mservices.inventoryservice.service.InventoryService;
@@ -27,7 +30,9 @@ public class InventoryServiceImpl implements InventoryService {
 
         @Override
         public InventoryResponse getInventoryByProductName(String productName){
-            ProductInventory product = productInventoryRepository.findByProductName(productName).orElseThrow();
+            ProductInventory product = productInventoryRepository.findByProductName(productName).orElseThrow(
+                    ()-> new ProductNotFoundException("Product not found with name : "+productName)
+            );
             return InventoryMapper.toInventoryResponse(product);
         }
 
@@ -39,7 +44,9 @@ public class InventoryServiceImpl implements InventoryService {
 
         @Override
         public InventoryResponse increaseInventory(UpdateInventoryRequest request){
-        ProductInventory product = productInventoryRepository.findByProductName(request.getProductName()).orElseThrow();
+        ProductInventory product = productInventoryRepository.findByProductName(request.getProductName()).orElseThrow(
+                ()-> new ProductNotFoundException("Product not found with name : "+request.getProductName())
+        );
         product.setAvailableQuantity(product.getAvailableQuantity()+ request.getQuantity());
         product.setLastUpdated(LocalDateTime.now());
         ProductInventory updatedProduct = productInventoryRepository.save(product);
@@ -48,12 +55,14 @@ public class InventoryServiceImpl implements InventoryService {
 
         @Override
         public InventoryResponse decreaseInventory (UpdateInventoryRequest request){
-        ProductInventory product = productInventoryRepository.findByProductName(request.getProductName()).orElseThrow();
+        ProductInventory product = productInventoryRepository.findByProductName(request.getProductName()).orElseThrow(
+                ()-> new ProductNotFoundException("Product not found with name : "+request.getProductName())
+        );
         if(product.getAvailableQuantity()==0 ){
-            throw new RuntimeException("Out of stock");
+            throw new OutOfStockException(request.getProductName()+" is Out of stock");
         }
         if(request.getQuantity()>product.getAvailableQuantity()){
-            throw new RuntimeException("Only "+product.getAvailableQuantity()+" products are in stock");
+            throw new InsufficientInventoryException("Requested quantity exceeds available inventory. Available quantity: " + product.getAvailableQuantity());
         }
         product.setAvailableQuantity(product.getAvailableQuantity()- request.getQuantity());
         product.setLastUpdated(LocalDateTime.now());

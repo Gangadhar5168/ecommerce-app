@@ -1,6 +1,7 @@
 package com.vg.mservices.inventoryservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class ProductInventory {
     private Long id;
     @Column(nullable = false,unique = true)
     private String productName;
+    @Column(nullable = false)
     private Integer availableQuantity;
     private LocalDateTime lastUpdated;
 }

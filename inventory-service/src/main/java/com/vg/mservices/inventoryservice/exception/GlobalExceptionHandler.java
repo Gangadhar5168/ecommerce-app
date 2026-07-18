@@ -1,6 +1,7 @@
 package com.vg.mservices.inventoryservice.exception;
 
 import com.vg.mservices.inventoryservice.dto.response.ErrorResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -66,6 +67,18 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex){
+        ErrorResponse response = ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .message("Duplicate Product")
+                .errors("A product with same name already exists")
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(response);
     }
 
